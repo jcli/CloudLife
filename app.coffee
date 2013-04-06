@@ -9,8 +9,13 @@ https   = require 'https'
 http    = require 'http'
 path    = require 'path'
 fs      = require 'fs'
+winston = require 'winston'
 
 app = express()
+if (not fs.existsSync('./log'))
+  fs.mkdirSync('./log')
+winston.add winston.transports.File, { filename: './log/server.log' }
+winston.remove winston.transports.Console
 
 app.configure(
    ->
@@ -33,25 +38,24 @@ app.configure(
 )
 
 app.get '/', routes.index
-app.get '/users', user.list
 
 server = http.createServer app
 server.listen(
   app.get 'port'
   ->
-    console.log 'Express server listening on port ' + app.get 'port'
+    winston.info '***'
+    winston.info 'Server started listening on port ' + app.get 'port'
 )
 
 WebSocket = require 'ws'
 WebSocketServer = WebSocket.Server
-webSocketServer = new WebSocketServer({server:server})
+wsServer = new WebSocketServer({server:server})
 
-ws_manager = require './ws_manager/connection'
-Connection = ws_manager.Connection
-connections = new ws_manager.Connections
-webSocketServer.on(
+wsManager = require './ws_manager/connection'
+connections = new wsManager.Connections
+wsServer.on(
   'connection',
   (ws)->
-    connection = new Connection(ws, connections)
+    connection = new wsManager.Connection(ws, connections)
     connections.masterList[connection.id]=connection
 )

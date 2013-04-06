@@ -2,7 +2,8 @@ vows = require 'vows'
 assert = require 'assert'
 host = 'localhost'
 port = 3000
-testMsg = 'this is a  test'
+testMsg = JSON.stringify({abc:123})
+
 vows.describe('testin the server connections').addBatch
   'when requesting the webserver':
     topic: ->
@@ -37,9 +38,15 @@ vows.describe('testin the server connections').addBatch
         callback null, echoMsg
       ws.on 'error', (error)->
         callback error, false
+      setTimeout(
+        ->
+          callback 'timedOut', false
+        1
+      )
       return
     'should not have error':(e, res)->
       assert.isNull(e)
     'should equal to :' : (e, res)->
+      console.log res
       assert.equal(res, testMsg)
 .export(module)

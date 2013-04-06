@@ -9,7 +9,8 @@
     "express": "3.1.0",
     "vows": "*",
     "jade": "*",
-    "ws": "*"
+    "ws": "*",
+    "winston": "*"
   },
   "subdomain": "jc_lij-cloudlife",
   "engines": {
