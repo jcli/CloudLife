@@ -2,6 +2,7 @@ vows = require 'vows'
 assert = require 'assert'
 host = 'localhost'
 port = 3000
+testMsg = 'this is a  test'
 vows.describe('testin the server connections').addBatch
   'when requesting the webserver':
     topic: ->
@@ -25,13 +26,20 @@ vows.describe('testin the server connections').addBatch
       WebSocket = require '../node_modules/ws'
       ws = new WebSocket 'ws://'+host+':'+port
       callback = @callback
+      echoMsg = ''
+      count = 0
       ws.on 'open', ->
+        ws.send testMsg
+      ws.on 'message', (data, flag)->
+        echoMsg = data
         ws.close()
-      ws.on 'close', ->
-        callback null, true
+      ws.on 'close', ->        
+        callback null, echoMsg
       ws.on 'error', (error)->
         callback error, false
       return
     'should not have error':(e, res)->
       assert.isNull(e)
+    'should equal to :' : (e, res)->
+      assert.equal(res, testMsg)
 .export(module)

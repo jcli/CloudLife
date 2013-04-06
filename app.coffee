@@ -46,15 +46,12 @@ WebSocket = require 'ws'
 WebSocketServer = WebSocket.Server
 webSocketServer = new WebSocketServer({server:server})
 
+ws_manager = require './ws_manager/connection'
+Connection = ws_manager.Connection
+connections = new ws_manager.Connections
 webSocketServer.on(
   'connection',
   (ws)->
-    console.log 'connected'
-    ws.on(
-      'message'
-      (data, flag) ->
-        console.log data, flag
-        ws.send data
-    )    
+    connection = new Connection(ws, connections)
+    connections.masterList[connection.id]=connection
 )
-
